@@ -1,0 +1,468 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Added futuristic animations and effects for EXONOVA */
+
+/* Starfield Animation */
+.stars {
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    1541px 1046px #fff, 1651px 1164px #fff, 1286px 1642px #fff, 1364px 1058px #fff,
+    1926px 1505px #fff, 1555px 1871px #fff, 1733px 1297px #fff, 1394px 1736px #fff,
+    1799px 1684px #fff, 1969px 1050px #fff, 1443px 1735px #fff, 1606px 1035px #fff,
+    1502px 1216px #fff, 1944px 1400px #fff, 1347px 1229px #fff, 1535px 1820px #fff,
+    1732px 1674px #fff, 1984px 1775px #fff, 1812px 1380px #fff, 1355px 1547px #fff;
+  animation: animStar 50s linear infinite;
+}
+
+.stars:after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    1541px 1046px #fff, 1651px 1164px #fff, 1286px 1642px #fff, 1364px 1058px #fff,
+    1926px 1505px #fff, 1555px 1871px #fff, 1733px 1297px #fff, 1394px 1736px #fff,
+    1799px 1684px #fff, 1969px 1050px #fff, 1443px 1735px #fff, 1606px 1035px #fff,
+    1502px 1216px #fff, 1944px 1400px #fff, 1347px 1229px #fff, 1535px 1820px #fff,
+    1732px 1674px #fff, 1984px 1775px #fff, 1812px 1380px #fff, 1355px 1547px #fff;
+}
+
+.stars2 {
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  box-shadow:
+    679px 1506px #00f0ff, 1717px 1129px #00f0ff, 1381px 1469px #00f0ff, 1963px 1801px #00f0ff,
+    1683px 1347px #00f0ff, 1530px 1824px #00f0ff, 1344px 1159px #00f0ff, 1817px 1670px #00f0ff,
+    1364px 1058px #00f0ff, 1926px 1505px #00f0ff, 1555px 1871px #00f0ff, 1733px 1297px #00f0ff;
+  animation: animStar 100s linear infinite;
+}
+
+.stars2:after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  box-shadow:
+    679px 1506px #00f0ff, 1717px 1129px #00f0ff, 1381px 1469px #00f0ff, 1963px 1801px #00f0ff,
+    1683px 1347px #00f0ff, 1530px 1824px #00f0ff, 1344px 1159px #00f0ff, 1817px 1670px #00f0ff,
+    1364px 1058px #00f0ff, 1926px 1505px #00f0ff, 1555px 1871px #00f0ff, 1733px 1297px #00f0ff;
+}
+
+.stars3 {
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  box-shadow:
+    1286px 1642px #9b59ff, 1364px 1058px #9b59ff, 1926px 1505px #9b59ff, 1555px 1871px #9b59ff,
+    1733px 1297px #9b59ff, 1394px 1736px #9b59ff, 1799px 1684px #9b59ff, 1969px 1050px #9b59ff;
+  animation: animStar 150s linear infinite;
+}
+
+.stars3:after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  box-shadow:
+    1286px 1642px #9b59ff, 1364px 1058px #9b59ff, 1926px 1505px #9b59ff, 1555px 1871px #9b59ff,
+    1733px 1297px #9b59ff, 1394px 1736px #9b59ff, 1799px 1684px #9b59ff, 1969px 1050px #9b59ff;
+}
+
+@keyframes animStar {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-2000px);
+  }
+}
+
+/* Scanline Animation */
+@keyframes scan {
+  0% {
+    top: -10%;
+  }
+  100% {
+    top: 110%;
+  }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
+/* Holographic Grid */
+.grid-overlay {
+  background-image: linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  width: 100%;
+  height: 100%;
+  animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Reduced neon glow effects to be more subtle */
+.neon-cyan {
+  color: #00f0ff;
+  text-shadow: 0 0 2px #00f0ff, 0 0 4px #00f0ff;
+}
+
+.neon-purple {
+  color: #9b59ff;
+  text-shadow: 0 0 2px #9b59ff, 0 0 4px #9b59ff;
+}
+
+/* Updated holographic panel with reduced glow effects */
+.holographic-panel {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.1), inset 0 0 15px rgba(0, 240, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  animation: scan-line 3s linear infinite;
+}
+
+.holographic-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(0, 240, 255, 0.03) 50%, transparent 51%);
+  pointer-events: none;
+}
+
+@keyframes scan-line {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* Globe interaction effects */
+.globe-container:hover .globe-glow {
+  box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+}
+
+/* Data point animations */
+@keyframes data-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+  }
+}
+
+.data-point {
+  animation: data-pulse 2s ease-in-out infinite;
+}
+
+/* Added slow spin animation for the globe */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* Added blueprint grid and planning grid styles */
+
+/* Blueprint Grid Background */
+.blueprint-grid {
+  background-image: linear-gradient(rgba(0, 240, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+  animation: blueprint-move 30s linear infinite;
+}
+
+@keyframes blueprint-move {
+  0% {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  }
+}
+
+/* Planning Grid for the map */
+.planning-grid {
+  background-image: linear-gradient(rgba(155, 89, 255, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(155, 89, 255, 0.3) 1px, transparent 1px),
+    linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
+}
+
+/* Added hex grid and disaster command specific styles */
+
+/* Hex Grid Background */
+.hex-grid {
+  background-image: radial-gradient(circle at 25px 25px, rgba(0, 240, 255, 0.2) 2px, transparent 2px),
+    radial-gradient(circle at 75px 75px, rgba(155, 89, 255, 0.1) 1px, transparent 1px);
+  background-size: 100px 100px, 50px 50px;
+  background-position: 0 0, 25px 25px;
+  animation: hex-move 20s linear infinite;
+}
+
+.hex-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+      30deg,
+      transparent 40%,
+      rgba(0, 240, 255, 0.1) 41%,
+      rgba(0, 240, 255, 0.1) 42%,
+      transparent 43%
+    ),
+    linear-gradient(90deg, transparent 40%, rgba(155, 89, 255, 0.05) 41%, rgba(155, 89, 255, 0.05) 42%, transparent 43%),
+    linear-gradient(150deg, transparent 40%, rgba(0, 240, 255, 0.1) 41%, rgba(0, 240, 255, 0.1) 42%, transparent 43%);
+  background-size: 60px 60px, 60px 60px, 60px 60px;
+}
+
+@keyframes hex-move {
+  0% {
+    background-position: 0 0, 25px 25px;
+  }
+  100% {
+    background-position: 100px 100px, 125px 125px;
+  }
+}
+
+/* Radar sweep effects */
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.radar-sweep {
+  animation: radar-sweep 4s linear infinite;
+}
+
+/* Seismic wave animation */
+@keyframes seismic-wave {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.seismic-wave {
+  animation: seismic-wave 2s ease-out infinite;
+}
+
+/* Reduced disaster glow effects to be more subtle */
+.disaster-glow-tsunami {
+  box-shadow: 0 0 10px #06b6d4, 0 0 20px #06b6d460;
+}
+
+.disaster-glow-volcano {
+  box-shadow: 0 0 10px #dc2626, 0 0 20px #dc262660;
+}
+
+.disaster-glow-wildfire {
+  box-shadow: 0 0 10px #ea580c, 0 0 20px #ea580c60;
+}
+
+.disaster-glow-earthquake {
+  box-shadow: 0 0 10px #ef4444, 0 0 20px #ef444460;
+}
+
+/* Pulsing alert animation */
+@keyframes alert-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.alert-pulse {
+  animation: alert-pulse 2s ease-in-out infinite;
+}
