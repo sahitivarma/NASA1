@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -23,15 +22,6 @@ interface Post {
   }
 }
 
-interface TrendingIssue {
-  id: string
-  region: string
-  issue: string
-  severity: "low" | "medium" | "high"
-  posts: number
-  heatmapData: number[]
-}
-
 export default function CommunityPortal() {
   const [mounted, setMounted] = useState(false)
   const [showPostModal, setShowPostModal] = useState(false)
@@ -50,15 +40,13 @@ export default function CommunityPortal() {
         location: "San Francisco, CA",
       },
       timestamp: "2 hours ago",
-      description: "Noticed unusual algae bloom in the bay area. Water quality seems compromised near Pier 39.",
+      description:
+        "Noticed unusual algae bloom in the bay area. Water quality seems compromised near Pier 39.",
       image: "/algae-bloom-in-bay-water.jpg",
       validityScore: 87,
       likes: 23,
       comments: 8,
-      location: {
-        name: "San Francisco Bay",
-        coordinates: [37.7749, -122.4194],
-      },
+      location: { name: "San Francisco Bay", coordinates: [37.7749, -122.4194] },
     },
     {
       id: "2",
@@ -73,10 +61,7 @@ export default function CommunityPortal() {
       validityScore: 92,
       likes: 45,
       comments: 12,
-      location: {
-        name: "Phoenix Metro",
-        coordinates: [33.4484, -112.074],
-      },
+      location: { name: "Phoenix Metro", coordinates: [33.4484, -112.074] },
     },
     {
       id: "3",
@@ -92,10 +77,7 @@ export default function CommunityPortal() {
       validityScore: 96,
       likes: 78,
       comments: 24,
-      location: {
-        name: "Miami-Dade County",
-        coordinates: [25.7617, -80.1918],
-      },
+      location: { name: "Miami-Dade County", coordinates: [25.7617, -80.1918] },
     },
     {
       id: "4",
@@ -110,53 +92,7 @@ export default function CommunityPortal() {
       validityScore: 84,
       likes: 34,
       comments: 15,
-      location: {
-        name: "Central Iowa",
-        coordinates: [41.5868, -93.625],
-      },
-    },
-  ])
-
-  const [trendingIssues] = useState<TrendingIssue[]>([
-    {
-      id: "1",
-      region: "West Coast",
-      issue: "Wildfire Risk",
-      severity: "high",
-      posts: 127,
-      heatmapData: [85, 92, 78, 89, 95],
-    },
-    {
-      id: "2",
-      region: "Gulf States",
-      issue: "Hurricane Season",
-      severity: "high",
-      posts: 89,
-      heatmapData: [76, 88, 92, 85, 79],
-    },
-    {
-      id: "3",
-      region: "Midwest",
-      issue: "Drought Conditions",
-      severity: "medium",
-      posts: 64,
-      heatmapData: [67, 72, 69, 74, 71],
-    },
-    {
-      id: "4",
-      region: "Northeast",
-      issue: "Air Quality",
-      severity: "medium",
-      posts: 43,
-      heatmapData: [58, 62, 65, 59, 61],
-    },
-    {
-      id: "5",
-      region: "Southwest",
-      issue: "Water Scarcity",
-      severity: "high",
-      posts: 98,
-      heatmapData: [82, 87, 91, 85, 89],
+      location: { name: "Central Iowa", coordinates: [41.5868, -93.625] },
     },
   ])
 
@@ -165,28 +101,14 @@ export default function CommunityPortal() {
   }, [])
 
   const getValidityColor = (score: number) => {
-    if (score >= 90) return "#22c55e"
-    if (score >= 75) return "#f59e0b"
-    if (score >= 60) return "#ef4444"
+    if (score >= 90) return "#22c55e" // green
+    if (score >= 75) return "#f59e0b" // orange
+    if (score >= 60) return "#ef4444" // red
     return "#64748b"
-  }
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "#dc2626"
-      case "medium":
-        return "#f59e0b"
-      case "low":
-        return "#22c55e"
-      default:
-        return "#64748b"
-    }
   }
 
   const handlePostSubmit = () => {
     if (!newPost.description.trim()) return
-
     alert("Post submitted successfully! Our AI is validating the information...")
     setNewPost({ description: "", location: "", image: null })
     setShowPostModal(false)
@@ -206,7 +128,7 @@ export default function CommunityPortal() {
       {/* Navigation */}
       <nav className="relative z-30 fixed top-0 left-0 right-0 p-6 bg-black/20 backdrop-blur-sm">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold neon-cyan">
+          <Link href="/" className="text-2xl font-bold" style={{ color: "#3b53f9" }}>
             EXONOVA
           </Link>
           <div className="flex items-center space-x-6 text-sm">
@@ -230,14 +152,16 @@ export default function CommunityPortal() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-20 pt-20 min-h-screen flex">
+      <div className="relative z-20 pt-6 min-h-screen flex">
         {/* Main Feed */}
-        <div className="flex-1 p-6 max-w-2xl mx-auto">
+        <div className="flex-1 p-6 max-w-2xl mx-auto overflow-y-auto custom-scrollbar">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold neon-cyan">Community Portal</h1>
+            <h1 className="text-3xl font-bold" style={{ color: "#3b53f9" }}>
+              Community Portal
+            </h1>
             <Button
               onClick={() => setShowPostModal(true)}
-              className="bg-gradient-to-r from-[#00F0FF] to-[#9B59FF] hover:from-[#00F0FF]/80 hover:to-[#9B59FF]/80 text-black font-semibold px-6 py-2 rounded-lg shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+              className="bg-[#3b53f9] hover:bg-[#3340c9] text-white font-semibold px-6 py-2 rounded-lg"
             >
               Create Post
             </Button>
@@ -246,7 +170,11 @@ export default function CommunityPortal() {
           {/* Posts Feed */}
           <div className="space-y-6">
             {posts.map((post) => (
-              <div key={post.id} className="holographic-panel p-6 rounded-lg">
+              <div
+                key={post.id}
+                className="p-6 rounded-lg"
+                style={{ backgroundColor: "#1e1e1e" }}
+              >
                 {/* Post Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
@@ -277,8 +205,6 @@ export default function CommunityPortal() {
                           stroke={getValidityColor(post.validityScore)}
                           strokeWidth="2"
                           strokeDasharray={`${post.validityScore}, 100`}
-                          className="animate-pulse"
-                          style={{ filter: `drop-shadow(0 0 5px ${getValidityColor(post.validityScore)})` }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -296,31 +222,27 @@ export default function CommunityPortal() {
                 {/* Post Image */}
                 {post.image && (
                   <div className="mb-4 rounded-lg overflow-hidden border border-[#00F0FF]/20">
-                    <img
-                      src={post.image || "/placeholder.svg"}
-                      alt="Post content"
-                      className="w-full h-48 object-cover"
-                    />
+                    <img src={post.image} alt="Post content" className="w-full h-48 object-cover" />
                   </div>
                 )}
 
                 {/* Location Pin */}
                 <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-4 h-4 rounded-full bg-[#9B59FF] animate-pulse shadow-[0_0_10px_#9B59FF]"></div>
+                  <div className="w-4 h-4 rounded-full bg-[#9B59FF] shadow-[0_0_10px_#9B59FF]"></div>
                   <span className="text-sm text-[#9B59FF]">{post.location.name}</span>
                 </div>
 
                 {/* Post Actions */}
                 <div className="flex items-center space-x-6 pt-4 border-t border-white/10">
-                  <button className="flex items-center space-x-2 text-white/60 hover:text-[#00F0FF] transition-colors">
+                  <button className="flex items-center space-x-2 text-white">
                     <span className="text-lg">👍</span>
                     <span className="text-sm">{post.likes}</span>
                   </button>
-                  <button className="flex items-center space-x-2 text-white/60 hover:text-[#00F0FF] transition-colors">
+                  <button className="flex items-center space-x-2 text-white">
                     <span className="text-lg">💬</span>
                     <span className="text-sm">{post.comments}</span>
                   </button>
-                  <button className="flex items-center space-x-2 text-white/60 hover:text-[#00F0FF] transition-colors">
+                  <button className="flex items-center space-x-2 text-white">
                     <span className="text-lg">📍</span>
                     <span className="text-sm">View Location</span>
                   </button>
@@ -330,126 +252,120 @@ export default function CommunityPortal() {
           </div>
         </div>
 
-        {/* Sidebar - Trending Issues */}
-        <div className="w-80 p-6">
-          <div className="holographic-panel p-6 rounded-lg">
-            <h2 className="text-xl font-bold neon-purple mb-6">Trending Issues by Region</h2>
-            <div className="space-y-4">
-              {trendingIssues.map((issue) => (
-                <div key={issue.id} className="p-4 bg-black/30 rounded-lg border border-white/10">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-white">{issue.issue}</h3>
-                    <span
-                      className="text-xs px-2 py-1 rounded"
-                      style={{
-                        backgroundColor: `${getSeverityColor(issue.severity)}20`,
-                        color: getSeverityColor(issue.severity),
-                      }}
-                    >
-                      {issue.severity.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-white/60 mb-3">{issue.region}</p>
-
-                  {/* Mini Heatmap */}
-                  <div className="flex items-center space-x-1 mb-2">
-                    {issue.heatmapData.map((value, index) => (
-                      <div
-                        key={index}
-                        className="w-4 h-8 rounded-sm"
-                        style={{
-                          backgroundColor: `${getSeverityColor(issue.severity)}${Math.round((value / 100) * 255)
-                            .toString(16)
-                            .padStart(2, "0")}`,
-                        }}
-                      ></div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-white/60">
-                    <span>{issue.posts} posts</span>
-                    <span>Last 24h</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* 🔹 Search Bar on the Right */}
+        <div className="w-96 p-6 pt-0 overflow-y-auto custom-scrollbar">
+          <div className="relative mt-0">
+            <input
+              type="text"
+              placeholder="Search trending issues by region"
+              className="w-full px-3 py-2 rounded-lg bg-white text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-[#3b53f9]"
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black/60">
+              🔍
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Post Creation Modal */}
+      {/* White Scrollbars */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: white;
+          border-radius: 8px;
+        }
+      `}</style>
+
+      {/* Create Post Modal */}
       {showPostModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="holographic-panel p-6 max-w-lg w-full mx-4">
-            <h3 className="text-xl font-bold neon-cyan mb-6">Create New Post</h3>
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80">
+          <div className="bg-[#2b2b2b] p-6 rounded-lg w-[520px] space-y-4 border border-[#3a3a3a] shadow-[0_10px_40px_rgba(0,0,0,0.6)]">
+            <h2 className="text-2xl font-extrabold" style={{ color: "#3b53f9" }}>
+              Create New Post
+            </h2>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-white/70 mb-2">Description</label>
-                <textarea
-                  value={newPost.description}
-                  onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
-                  placeholder="Share your environmental observation or concern..."
-                  className="w-full h-32 bg-black/50 border border-[#00F0FF]/30 rounded px-3 py-2 text-white placeholder-white/50 focus:border-[#00F0FF] focus:outline-none resize-none"
-                />
-              </div>
+            {/* Description */}
+            <div>
+              <label className="text-sm text-white mb-1 block">Description</label>
+              <textarea
+                placeholder="Share your environmental observation or concern..."
+                value={newPost.description}
+                onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
+                className="w-full p-3 rounded-md bg-transparent border border-[#555] text-white placeholder-white/40 min-h-[110px] resize-none"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm text-white/70 mb-2">Location</label>
-                <input
-                  type="text"
-                  value={newPost.location}
-                  onChange={(e) => setNewPost({ ...newPost, location: e.target.value })}
-                  placeholder="Enter location (e.g., San Francisco, CA)"
-                  className="w-full bg-black/50 border border-[#00F0FF]/30 rounded px-3 py-2 text-white placeholder-white/50 focus:border-[#00F0FF] focus:outline-none"
-                />
-              </div>
+            {/* Location */}
+            <div>
+              <label className="text-sm text-white mb-1 block">Location</label>
+              <input
+                type="text"
+                placeholder="Enter location (e.g., San Francisco, CA)"
+                value={newPost.location}
+                onChange={(e) => setNewPost({ ...newPost, location: e.target.value })}
+                className="w-full p-2 rounded-md bg-transparent border border-[#555] text-white placeholder-white/40"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm text-white/70 mb-2">Upload Image (Optional)</label>
+            {/* Upload */}
+            <div className="flex items-center justify-between space-x-4">
+              <label className="inline-flex items-center px-4 py-2 rounded-md cursor-pointer bg-[#3b53f9] hover:bg-[#3340c9]">
+                <span className="text-sm font-medium text-white">Choose file</span>
                 <input
                   type="file"
-                  accept="image/*"
-                  onChange={(e) => setNewPost({ ...newPost, image: e.target.files?.[0] || null })}
-                  className="w-full bg-black/50 border border-[#00F0FF]/30 rounded px-3 py-2 text-white file:bg-[#00F0FF]/20 file:border-0 file:text-[#00F0FF] file:px-3 file:py-1 file:rounded file:mr-3"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setNewPost({ ...newPost, image: e.target.files[0] })
+                    }
+                  }}
                 />
-              </div>
+              </label>
 
-              {/* Progress Animation */}
-              <div className="bg-black/50 border border-[#9B59FF]/30 rounded p-3">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-3 h-3 bg-[#9B59FF] rounded-full animate-pulse"></div>
-                  <span className="text-sm text-[#9B59FF]">AI Validation Ready</span>
-                </div>
-                <div className="text-xs text-white/60">
-                  Your post will be analyzed for accuracy and relevance before publishing.
+              <div className="text-sm text-white/80 flex-1">
+                {newPost.image ? newPost.image.name : "No file chosen"}
+              </div>
+            </div>
+
+            {/* AI Validation Badge */}
+            <div className="p-3 rounded-md border border-[#444] bg-transparent">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 rounded-full bg-[#7c3aed] shadow-[0_0_12px_#7c3aed]"></div>
+                <div>
+                  <div className="text-sm font-semibold text-white">AI Validation Ready</div>
+                  <div className="text-xs text-white/70">
+                    Your post will be analyzed for accuracy and relevance before publishing.
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex space-x-3 mt-6">
-              <Button
+            {/* Actions */}
+            <div className="flex justify-end items-center space-x-3">
+              <button
                 onClick={handlePostSubmit}
-                disabled={!newPost.description.trim()}
-                className="flex-1 bg-gradient-to-r from-[#00F0FF] to-[#9B59FF] hover:from-[#00F0FF]/80 hover:to-[#9B59FF]/80 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+                className="px-6 py-2 rounded-md font-semibold text-white bg-[#3b53f9] hover:bg-[#3340c9]"
               >
                 Post
-              </Button>
-              <Button
+              </button>
+
+              <button
                 onClick={() => setShowPostModal(false)}
-                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400"
+                type="button"
+                className="px-4 py-2 rounded-md font-medium bg-[#444] text-white"
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Holographic Grid Overlay */}
-      <div className="absolute inset-0 z-10 opacity-10">
-        <div className="grid-overlay"></div>
-      </div>
     </div>
   )
 }

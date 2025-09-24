@@ -23,16 +23,13 @@ export default function UrbanPlanner() {
   const [mounted, setMounted] = useState(false)
   const [showImpactToggle, setShowImpactToggle] = useState(false)
   const [selectedZone, setSelectedZone] = useState<DarkZone | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const [infrastructureLayers, setInfrastructureLayers] = useState<InfrastructureLayer[]>([
     { id: "roads", name: "Road Network", type: "existing", active: true, color: "#64748b" },
-    { id: "power", name: "Power Grid", type: "existing", active: true, color: "#f59e0b" },
-    { id: "water", name: "Water Systems", type: "existing", active: true, color: "#06b6d4" },
     { id: "schools", name: "Schools", type: "existing", active: true, color: "#22c55e" },
     { id: "hospitals", name: "Hospitals", type: "existing", active: true, color: "#ef4444" },
     { id: "new-roads", name: "Proposed Roads", type: "proposed", active: false, color: "#00f0ff" },
-    { id: "new-power", name: "Solar Microgrids", type: "proposed", active: false, color: "#9b59ff" },
-    { id: "new-water", name: "Water Treatment", type: "proposed", active: false, color: "#22c55e" },
     { id: "new-schools", name: "Proposed Schools", type: "proposed", active: false, color: "#10b981" },
     { id: "new-hospitals", name: "Proposed Hospitals", type: "proposed", active: false, color: "#f87171" },
   ])
@@ -45,9 +42,18 @@ export default function UrbanPlanner() {
     { id: "zone5", x: 85, y: 45, size: 50, severity: "medium" },
   ])
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const [fixedPositions] = useState(() => ({
+    "new-schools": [
+      { x: 20, y: 20 },
+      { x: 40, y: 25 },
+    ],
+    "new-hospitals": [
+      { x: 25, y: 35 },
+      { x: 50, y: 40 },
+    ],
+  }))
+
+  useEffect(() => setMounted(true), [])
 
   const toggleLayer = (id: string) => {
     setInfrastructureLayers((prev) =>
@@ -57,6 +63,10 @@ export default function UrbanPlanner() {
 
   const generateRecommendations = () => {
     alert("Generating Zoning Recommendations based on current analysis...")
+  }
+
+  const searchCity = () => {
+    alert(`Searching for city: ${searchQuery}`)
   }
 
   const getSeverityColor = (severity: string) => {
@@ -79,103 +89,138 @@ export default function UrbanPlanner() {
       {/* Blueprint Grid Background */}
       <div className="absolute inset-0 z-0 blueprint-grid opacity-20"></div>
 
+      {/* Search Bar + Development Impact Box */}
+      <div className="absolute top-20 right-6 z-40 space-y-3">
+        {/* Search Bar */}
+        <div className="flex items-center bg-white rounded-lg py-1.5 px-3 text-black shadow-md">
+          <input
+            type="text"
+            placeholder="Search location..."
+            className="bg-transparent outline-none text-black placeholder-gray-500 text-sm w-60"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => { if (e.key === "Enter") searchCity() }}
+          />
+          <span className="ml-2 text-black text-lg flex items-center">🔍</span>
+        </div>
+
+        {/* Development Impact Box */}
+        {showImpactToggle && (
+          <div className="bg-gray-800 border border-blue-600 rounded-lg p-3 shadow-md text-sm w-72">
+            <p className="font-semibold mb-1" style={{ color: "#3b53f9" }}>Development Impact</p>
+            <p className="text-white">
+              Proposed infrastructure positively impacts{" "}
+              <span className="text-green-400 font-bold">12,500 people</span>.
+              <br />
+              Estimated access to healthcare ↑ <span className="text-green-400 font-bold">18%</span>, education ↑{" "}
+              <span className="text-green-400 font-bold">25%</span>.
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Main Content */}
       <div className="relative z-20 h-screen flex w-full pt-16">
         {/* Left Control Panel */}
-        <div className="w-96 bg-black/95 backdrop-blur-sm border-r border-blue-900/50 p-6 h-full pt-6">
-          <h2 className="text-xl font-bold text-blue-300 mb-6">Urban Planning Console</h2>
+        <div className="w-96 bg-black/95 backdrop-blur-sm border-r border-blue-900/50 p-6 h-full flex flex-col pt-6">
+          <div className="flex-1 overflow-y-auto pr-2" style={{ scrollbarWidth: "thin", scrollbarColor: "#00F0FF rgba(0,0,0,0.2)" }}>
+            <style>
+              {`
+                ::-webkit-scrollbar { width: 6px; }
+                ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+                ::-webkit-scrollbar-thumb { background-color: #00F0FF; border-radius: 3px; }
+                ::-webkit-scrollbar-thumb:hover { background-color: #22c55e; }
+              `}
+            </style>
 
-          {/* Infrastructure Layers */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4 text-blue-200">Infrastructure Layers</h3>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {infrastructureLayers.map((layer) => (
-                <div key={layer.id} className="flex items-center justify-between">
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={layer.active}
-                      onChange={() => toggleLayer(layer.id)}
-                      className="sr-only"
-                    />
-                    <div
-                      className={`w-4 h-4 rounded border-2 transition-all ${
-                        layer.active ? "bg-current border-current" : "border-gray-600"
-                      }`}
-                      style={{ color: layer.color }}
-                    ></div>
-                    <span className="text-sm text-gray-300">{layer.name}</span>
-                  </label>
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      layer.type === "existing" ? "bg-gray-800/50 text-gray-400" : "bg-blue-900/30 text-blue-300"
-                    }`}
-                  >
-                    {layer.type}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+            <h2 className="text-xl font-bold mb-6" style={{ color: "#3b53f9" }}>Urban Planning Console</h2>
 
-          {/* Nightlight Analysis */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4 text-blue-200">Nightlight Analysis</h3>
-            <div className="bg-gray-900/50 border border-blue-800/50 rounded p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-300">Electricity Coverage</span>
-                <span className="text-blue-300 font-bold">67%</span>
+            {/* Infrastructure Layers */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#3b53f9" }}>Infrastructure Layers</h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {infrastructureLayers.map((layer) => (
+                  <div key={layer.id} className="flex items-center justify-between">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={layer.active}
+                        onChange={() => toggleLayer(layer.id)}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`w-4 h-4 rounded border-2 transition-all ${layer.active ? "bg-current border-current" : "border-gray-600"}`}
+                        style={{ color: layer.color }}
+                      ></div>
+                      <span className="text-sm text-white">{layer.name}</span>
+                    </label>
+                    <span
+                      className={`text-xs px-2 py-1 rounded ${layer.type === "existing" ? "bg-gray-800/50 text-white" : "bg-blue-900/30 text-white"}`}
+                    >
+                      {layer.type}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="w-full bg-gray-800 rounded-full h-2 mb-4">
+            </div>
+
+            {/* Nightlight Analysis */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#3b53f9" }}>Nightlight Analysis</h3>
+              <div className="bg-gray-700 border border-gray-600 rounded p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-white">Electricity Coverage</span>
+                  <span className="text-white font-bold">{`67%`}</span>
+                </div>
+                <div className="w-full bg-gray-600 rounded-full h-2 mb-4">
+                  <div
+                    className="h-2 rounded-full shadow-lg"
+                    style={{ width: "67%", backgroundColor: "#3b53f9" }}
+                  ></div>
+                </div>
+                <div className="text-xs text-white">
+                  <div className="flex justify-between mb-1">
+                    <span>Dark Zones Detected:</span>
+                    <span className="text-red-400">{darkZones.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Recommended Microgrids:</span>
+                    <span className="text-green-400">3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Development Impact Toggle */}
+            <div className="mb-6">
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showImpactToggle}
+                  onChange={(e) => setShowImpactToggle(e.target.checked)}
+                  className="sr-only"
+                />
                 <div
-                  className="bg-gradient-to-r from-blue-600 to-blue-500 h-2 rounded-full shadow-lg"
-                  style={{ width: "67%" }}
-                ></div>
-              </div>
-              <div className="text-xs text-gray-400">
-                <div className="flex justify-between mb-1">
-                  <span>Dark Zones Detected:</span>
-                  <span className="text-red-400">{darkZones.length}</span>
+                  className={`w-12 h-6 rounded-full border-2 transition-all relative ${showImpactToggle ? "bg-blue-900/30 border-blue-600 shadow-lg" : "border-gray-600"}`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 ${showImpactToggle ? "translate-x-6" : "translate-x-0.5"}`}
+                  ></div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Recommended Microgrids:</span>
-                  <span className="text-green-400">3</span>
-                </div>
-              </div>
+                <span className="text-sm text-gray-300">Development Impact</span>
+              </label>
             </div>
-          </div>
 
-          {/* Development Impact Toggle */}
-          <div className="mb-6">
-            <label className="flex items-center space-x-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showImpactToggle}
-                onChange={(e) => setShowImpactToggle(e.target.checked)}
-                className="sr-only"
-              />
-              <div
-                className={`w-12 h-6 rounded-full border-2 transition-all relative ${
-                  showImpactToggle ? "bg-blue-900/30 border-blue-600 shadow-lg" : "border-gray-600"
-                }`}
+            {/* Generate Recommendations Button */}
+            <div className="mt-4">
+              <Button
+                onClick={generateRecommendations}
+                className="w-full bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                <div
-                  className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 ${
-                    showImpactToggle ? "translate-x-6" : "translate-x-0.5"
-                  }`}
-                ></div>
-              </div>
-              <span className="text-sm text-gray-300">Development Impact</span>
-            </label>
+                Generate Zoning Recommendations
+              </Button>
+            </div>
           </div>
-
-          {/* Generate Recommendations Button */}
-          <Button
-            onClick={generateRecommendations}
-            className="w-full bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-          >
-            Generate Zoning Recommendations
-          </Button>
         </div>
 
         {/* Main Planning Map */}
@@ -184,316 +229,62 @@ export default function UrbanPlanner() {
             {/* Map Grid */}
             <div className="absolute inset-0 planning-grid opacity-30"></div>
 
-            {/* Existing Infrastructure (Dull Neon Outlines) */}
-            {infrastructureLayers
-              .filter((layer) => layer.type === "existing" && layer.active)
-              .map((layer) => (
-                <div key={layer.id} className="absolute inset-0">
-                  {layer.id === "roads" && (
-                    <>
-                      <div
-                        className="absolute h-1 opacity-60"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "10%",
-                          top: "20%",
-                          width: "80%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      ></div>
-                      <div
-                        className="absolute w-1 opacity-60"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "30%",
-                          top: "10%",
-                          height: "80%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      ></div>
-                      <div
-                        className="absolute w-1 opacity-60"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "70%",
-                          top: "10%",
-                          height: "80%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      ></div>
-                    </>
-                  )}
-                  {layer.id === "power" && (
-                    <>
-                      <div
-                        className="absolute w-0.5 opacity-60"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "25%",
-                          top: "15%",
-                          height: "70%",
-                          boxShadow: `0 0 3px ${layer.color}`,
-                        }}
-                      ></div>
-                      <div
-                        className="absolute h-0.5 opacity-60"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "20%",
-                          top: "40%",
-                          width: "60%",
-                          boxShadow: `0 0 3px ${layer.color}`,
-                        }}
-                      ></div>
-                    </>
-                  )}
-                  {layer.id === "schools" && (
-                    <>
-                      <div
-                        className="absolute w-6 h-6 rounded opacity-60 flex items-center justify-center text-xs font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "25%",
-                          top: "35%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      >
-                        <div className="w-4 h-4 bg-white rounded-sm"></div>
-                      </div>
-                      <div
-                        className="absolute w-6 h-6 rounded opacity-60 flex items-center justify-center text-xs font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "65%",
-                          top: "25%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      >
-                        <div className="w-4 h-4 bg-white rounded-sm"></div>
-                      </div>
-                      <div
-                        className="absolute w-6 h-6 rounded opacity-60 flex items-center justify-center text-xs font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "45%",
-                          top: "75%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      >
-                        <div className="w-4 h-4 bg-white rounded-sm"></div>
-                      </div>
-                    </>
-                  )}
-                  {layer.id === "hospitals" && (
-                    <>
-                      <div
-                        className="absolute w-6 h-6 rounded opacity-60 flex items-center justify-center text-xs font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "35%",
-                          top: "45%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      >
-                        <div className="text-white text-lg">+</div>
-                      </div>
-                      <div
-                        className="absolute w-6 h-6 rounded opacity-60 flex items-center justify-center text-xs font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "75%",
-                          top: "55%",
-                          boxShadow: `0 0 5px ${layer.color}`,
-                        }}
-                      >
-                        <div className="text-white text-lg">+</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
+            {/* Existing Roads */}
+            {infrastructureLayers.filter(l => l.id === "roads" && l.active).map((layer) => (
+              <svg key={layer.id} className="absolute inset-0 w-full h-full pointer-events-none">
+                <line x1="10%" y1="10%" x2="90%" y2="10%" stroke={layer.color} strokeWidth={2} />
+                <line x1="10%" y1="20%" x2="90%" y2="20%" stroke={layer.color} strokeWidth={2} />
+              </svg>
+            ))}
 
-            {/* Proposed Infrastructure (Bright Glowing Pulsing) */}
-            {infrastructureLayers
-              .filter((layer) => layer.type === "proposed" && layer.active)
-              .map((layer) => (
-                <div key={layer.id} className="absolute inset-0">
-                  {layer.id === "new-roads" && (
-                    <>
-                      <div
-                        className="absolute h-2"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "15%",
-                          top: "60%",
-                          width: "70%",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute w-2"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "50%",
-                          top: "30%",
-                          height: "40%",
-                        }}
-                      ></div>
-                    </>
-                  )}
-                  {layer.id === "new-power" && (
-                    <>
-                      {darkZones.slice(0, 3).map((zone, index) => (
-                        <div
-                          key={`microgrid-${index}`}
-                          className="absolute w-4 h-4 rounded-full"
-                          style={{
-                            backgroundColor: layer.color,
-                            left: `${zone.x}%`,
-                            top: `${zone.y}%`,
-                          }}
-                        ></div>
-                      ))}
-                    </>
-                  )}
-                  {layer.id === "new-schools" && (
-                    <>
-                      <div
-                        className="absolute w-8 h-8 rounded flex items-center justify-center text-sm font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "55%",
-                          top: "65%",
-                        }}
-                      >
-                        <div className="w-5 h-5 bg-white rounded-sm"></div>
-                      </div>
-                      <div
-                        className="absolute w-8 h-8 rounded flex items-center justify-center text-sm font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "25%",
-                          top: "15%",
-                        }}
-                      >
-                        <div className="w-5 h-5 bg-white rounded-sm"></div>
-                      </div>
-                    </>
-                  )}
-                  {layer.id === "new-hospitals" && (
-                    <>
-                      <div
-                        className="absolute w-8 h-8 rounded flex items-center justify-center text-sm font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "15%",
-                          top: "55%",
-                        }}
-                      >
-                        <div className="text-white text-xl">+</div>
-                      </div>
-                      <div
-                        className="absolute w-8 h-8 rounded flex items-center justify-center text-sm font-bold"
-                        style={{
-                          backgroundColor: layer.color,
-                          left: "85%",
-                          top: "25%",
-                        }}
-                      >
-                        <div className="text-white text-xl">+</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
+            {/* Proposed Roads */}
+            {infrastructureLayers.filter(l => l.id === "new-roads" && l.active).map((layer) => (
+              <svg key={layer.id} className="absolute inset-0 w-full h-full pointer-events-none">
+                <line x1="10%" y1="30%" x2="90%" y2="30%" stroke={layer.color} strokeWidth={2} strokeDasharray="4 4" />
+                <line x1="10%" y1="40%" x2="90%" y2="40%" stroke={layer.color} strokeWidth={2} strokeDasharray="4 4" />
+              </svg>
+            ))}
 
-            {/* Dark Zones (No Electricity) */}
+            {/* Schools & Hospitals */}
+            {infrastructureLayers.filter(l => (l.id === "schools" || l.id === "hospitals" || l.type === "proposed") && l.active)
+              .map((layer) => {
+                if (layer.id === "new-schools" || layer.id === "new-hospitals") {
+                  return fixedPositions[layer.id].map((pos, idx) => (
+                    <div key={`${layer.id}-${idx}`} className="absolute rounded-full"
+                      style={{
+                        left: `${pos.x}%`,
+                        top: `${pos.y}%`,
+                        width: "20px",
+                        height: "20px",
+                        backgroundColor: layer.color,
+                        boxShadow: `0 0 10px ${layer.color}`,
+                      }}
+                    />
+                  ))
+                }
+                if (layer.id === "schools") return <div key="school1" className="absolute rounded-full" style={{ left: "15%", top: "25%", width: "20px", height: "20px", backgroundColor: layer.color, boxShadow: `0 0 10px ${layer.color}` }} />
+                if (layer.id === "hospitals") return <div key="hospital1" className="absolute rounded-full" style={{ left: "30%", top: "35%", width: "20px", height: "20px", backgroundColor: layer.color, boxShadow: `0 0 10px ${layer.color}` }} />
+              })}
+
+            {/* Dark Zones */}
             {darkZones.map((zone) => (
               <div
                 key={zone.id}
-                className="absolute rounded-full cursor-pointer transition-all hover:scale-110"
+                className="absolute rounded-full opacity-40"
                 style={{
                   left: `${zone.x}%`,
                   top: `${zone.y}%`,
                   width: `${zone.size}px`,
                   height: `${zone.size}px`,
-                  backgroundColor: `${getSeverityColor(zone.severity)}20`,
-                  border: `2px solid ${getSeverityColor(zone.severity)}`,
-                  boxShadow: `0 0 20px ${getSeverityColor(zone.severity)}40`,
+                  backgroundColor: getSeverityColor(zone.severity),
+                  transform: "translate(-50%, -50%)",
                 }}
-                onClick={() => setSelectedZone(zone)}
-                onMouseEnter={(e) => {
-                  const tooltip = document.createElement("div")
-                  tooltip.className =
-                    "fixed z-50 bg-slate-900/95 text-white p-2 rounded text-sm border border-red-500/50"
-                  tooltip.innerHTML = `⚡ No electricity detected<br/>Recommended: Solar microgrid deployment`
-                  tooltip.style.left = `${e.clientX + 10}px`
-                  tooltip.style.top = `${e.clientY - 10}px`
-                  tooltip.id = "zone-tooltip"
-                  document.body.appendChild(tooltip)
-                }}
-                onMouseLeave={() => {
-                  const tooltip = document.getElementById("zone-tooltip")
-                  if (tooltip) tooltip.remove()
-                }}
-              ></div>
+              />
             ))}
 
-            {/* Development Impact Overlays */}
-            {showImpactToggle && (
-              <div className="absolute inset-0">
-                <div className="absolute top-20 right-4 bg-black/90 border border-blue-700/50 rounded p-4 text-sm">
-                  <h4 className="font-semibold text-blue-300 mb-2">Impact Analysis</h4>
-                  <div className="space-y-1 text-xs text-gray-300">
-                    <div>Coverage: +23%</div>
-                    <div>Energy Access: +45%</div>
-                    <div>Population Served: +12,000</div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
-
-      {/* Selected Zone Info Modal */}
-      {selectedZone && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-black/95 backdrop-blur-sm border border-blue-800/50 rounded-lg p-6 max-w-md">
-            <h3 className="text-lg font-bold text-blue-300 mb-4">Dark Zone Analysis</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-300">Zone ID:</span>
-                <span className="text-blue-300">{selectedZone.id.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-300">Severity:</span>
-                <span style={{ color: getSeverityColor(selectedZone.severity) }}>
-                  {selectedZone.severity.toUpperCase()}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-300">Affected Area:</span>
-                <span className="text-gray-300">{selectedZone.size * 10} sq km</span>
-              </div>
-              <div className="mt-4 p-3 bg-gray-900/50 rounded border border-blue-700/50">
-                <h4 className="font-semibold text-blue-300 mb-2">Recommendations:</h4>
-                <ul className="text-xs space-y-1 text-gray-400">
-                  <li>• Deploy solar microgrid system</li>
-                  <li>• Install LED street lighting</li>
-                  <li>• Connect to main power grid</li>
-                  <li>• Estimated cost: $2.3M</li>
-                </ul>
-              </div>
-            </div>
-            <Button
-              onClick={() => setSelectedZone(null)}
-              className="w-full mt-4 bg-red-900/30 hover:bg-red-800/40 border border-red-700/50 text-red-400"
-            >
-              Close
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
