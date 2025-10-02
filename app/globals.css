@@ -1,5 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
+@import "cesium/Build/Cesium/Widgets/widgets.css";
+
+/* Optional: make container fill the screen */
+html, body, #__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 
 @custom-variant dark (&:is(.dark *));
 

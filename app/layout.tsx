@@ -6,6 +6,8 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import Navigation from "@/components/navigation"
 import "./globals.css"
+import "cesium/Build/Cesium/Widgets/widgets.css"
+
 
 export const metadata: Metadata = {
   title: "EXONOVA - Protecting Tomorrow, Today",
