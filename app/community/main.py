@@ -363,14 +363,169 @@
 #     trending = [{"issue": k, "count": v} for k, v in sorted(counts.items(), key=lambda x: -x[1])]
 #     return trending
 
-from fastapi import FastAPI, UploadFile, Form, HTTPException
+# from fastapi import FastAPI, UploadFile, Form, HTTPException
+# from fastapi.middleware.cors import CORSMiddleware
+# from pydantic import BaseModel
+# import json, os, uuid
+# from src.scoring import calculate_validity_score
+# from src.trending import get_trending_issues
+# from src.loader import load_granules
+
+
+# app = FastAPI()
+
+# # Allow CORS for frontend
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# POSTS_FILE = "posts.json"
+
+# # Ensure posts.json exists
+# if not os.path.exists(POSTS_FILE):
+#     with open(POSTS_FILE, "w") as f:
+#         json.dump([], f)
+
+
+# class Post(BaseModel):
+#     id: str
+#     name: str
+#     location: str
+#     description: str
+#     validityScore: float
+#     image: str | None = None
+#     problem: str | None = None  # optional field for trending
+
+
+# @app.get("/api/posts")
+# def get_posts():
+#     with open(POSTS_FILE, "r") as f:
+#         posts = json.load(f)
+#     return list(reversed(posts))
+
+
+# # @app.post("/api/posts")
+# # async def create_post(
+# #     name: str = Form(...),
+# #     location: str = Form(...),
+# #     description: str = Form(...),
+# #     problem: str = Form("General"),
+# #     image: UploadFile | None = None,
+# # ):
+# #     # Calculate validity score using NASA backend model
+# #     try:
+# #         score = calculate_validity_score(description)
+# #     except Exception:
+# #         score = 75.0  # fallback
+
+# #     # Save uploaded image if provided
+# #     image_url = None
+# #     if image:
+# #         folder = "uploads"
+# #         os.makedirs(folder, exist_ok=True)
+# #         file_path = os.path.join(folder, image.filename)
+# #         with open(file_path, "wb") as f:
+# #             f.write(await image.read())
+# #         image_url = f"/{file_path}"
+
+# #     new_post = {
+# #         "id": str(uuid.uuid4()),
+# #         "name": name,
+# #         "location": location,
+# #         "description": description,
+# #         "problem": problem,
+# #         "validityScore": round(score, 2),
+# #         "image": image_url,
+# #     }
+
+# #     with open(POSTS_FILE, "r") as f:
+# #         posts = json.load(f)
+# #     posts.append(new_post)
+# #     with open(POSTS_FILE, "w") as f:
+# #         json.dump(posts, f, indent=4)
+
+# #     return {"message": "Post created successfully", "post": new_post}
+# @app.post("/api/posts")
+# async def create_post(
+#     name: str = Form(...),
+#     location: str = Form(...),
+#     description: str = Form(...),
+#     problem: str = Form("General"),
+#     image: UploadFile | None = None,
+# ):
+#     from src.loader import load_granules
+#     from src.scoring import calculate_validity_score
+
+#     try:
+#         # Load NASA datasets (this might take time)
+#         granule_data = load_granules()
+#         score = calculate_validity_score(granule_data, problem)
+#     except Exception as e:
+#         print("⚠️ Error calculating score:", e)
+#         score = 75.0  # fallback
+
+#     # Save uploaded image if provided
+#     image_url = None
+#     if image:
+#         folder = "uploads"
+#         os.makedirs(folder, exist_ok=True)
+#         file_path = os.path.join(folder, image.filename)
+#         with open(file_path, "wb") as f:
+#             f.write(await image.read())
+#         image_url = f"/{file_path}"
+
+#     new_post = {
+#         "id": str(uuid.uuid4()),
+#         "name": name,
+#         "location": location,
+#         "description": description,
+#         "problem": problem,
+#         "validityScore": round(score * 100, 2),  # convert to percentage
+#         "image": image_url,
+#     }
+
+#     with open(POSTS_FILE, "r") as f:
+#         posts = json.load(f)
+#     posts.append(new_post)
+#     with open(POSTS_FILE, "w") as f:
+#         json.dump(posts, f, indent=4)
+
+#     return {"message": "Post created successfully", "post": new_post}
+
+# @app.get("/api/trending")
+# def get_trending(region: str):
+#     # Read posts from posts.json
+#     with open(POSTS_FILE, "r") as f:
+#         posts = json.load(f)
+
+#     # Filter by region (case insensitive)
+#     filtered = [p for p in posts if p["location"].lower() == region.lower()]
+#     if not filtered:
+#         return {"region": region, "trending": []}
+
+#     # Count issues by "problem" type
+#     counts = {}
+#     for post in filtered:
+#         prob = post.get("problem", "Unknown")
+#         counts[prob] = counts.get(prob, 0) + 1
+
+#     trending = [
+#         {"issue": k, "count": v}
+#         for k, v in sorted(counts.items(), key=lambda x: -x[1])
+#     ]
+
+#     return {"region": region, "trending": trending}
+
+from fastapi import FastAPI, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json, os, uuid
 from src.scoring import calculate_validity_score
-from src.trending import get_trending_issues
 from src.loader import load_granules
-
 
 app = FastAPI()
 
@@ -384,8 +539,6 @@ app.add_middleware(
 )
 
 POSTS_FILE = "posts.json"
-
-# Ensure posts.json exists
 if not os.path.exists(POSTS_FILE):
     with open(POSTS_FILE, "w") as f:
         json.dump([], f)
@@ -408,65 +561,21 @@ def get_posts():
     return list(reversed(posts))
 
 
-# @app.post("/api/posts")
-# async def create_post(
-#     name: str = Form(...),
-#     location: str = Form(...),
-#     description: str = Form(...),
-#     problem: str = Form("General"),
-#     image: UploadFile | None = None,
-# ):
-#     # Calculate validity score using NASA backend model
-#     try:
-#         score = calculate_validity_score(description)
-#     except Exception:
-#         score = 75.0  # fallback
-
-#     # Save uploaded image if provided
-#     image_url = None
-#     if image:
-#         folder = "uploads"
-#         os.makedirs(folder, exist_ok=True)
-#         file_path = os.path.join(folder, image.filename)
-#         with open(file_path, "wb") as f:
-#             f.write(await image.read())
-#         image_url = f"/{file_path}"
-
-#     new_post = {
-#         "id": str(uuid.uuid4()),
-#         "name": name,
-#         "location": location,
-#         "description": description,
-#         "problem": problem,
-#         "validityScore": round(score, 2),
-#         "image": image_url,
-#     }
-
-#     with open(POSTS_FILE, "r") as f:
-#         posts = json.load(f)
-#     posts.append(new_post)
-#     with open(POSTS_FILE, "w") as f:
-#         json.dump(posts, f, indent=4)
-
-#     return {"message": "Post created successfully", "post": new_post}
 @app.post("/api/posts")
 async def create_post(
-    name: str = Form(...),
     location: str = Form(...),
     description: str = Form(...),
     problem: str = Form("General"),
     image: UploadFile | None = None,
+    name: str = Form("Anonymous"),  # default name if not provided
 ):
-    from src.loader import load_granules
-    from src.scoring import calculate_validity_score
-
     try:
-        # Load NASA datasets (this might take time)
+        # Load NASA datasets (can be heavy)
         granule_data = load_granules()
         score = calculate_validity_score(granule_data, problem)
     except Exception as e:
         print("⚠️ Error calculating score:", e)
-        score = 75.0  # fallback
+        score = 0.75  # fallback
 
     # Save uploaded image if provided
     image_url = None
@@ -484,10 +593,11 @@ async def create_post(
         "location": location,
         "description": description,
         "problem": problem,
-        "validityScore": round(score * 100, 2),  # convert to percentage
+        "validityScore": round(score * 100, 2),
         "image": image_url,
     }
 
+    # Save to JSON
     with open(POSTS_FILE, "r") as f:
         posts = json.load(f)
     posts.append(new_post)
@@ -496,26 +606,23 @@ async def create_post(
 
     return {"message": "Post created successfully", "post": new_post}
 
+
 @app.get("/api/trending")
 def get_trending(region: str):
-    # Read posts from posts.json
     with open(POSTS_FILE, "r") as f:
         posts = json.load(f)
 
-    # Filter by region (case insensitive)
     filtered = [p for p in posts if p["location"].lower() == region.lower()]
     if not filtered:
         return {"region": region, "trending": []}
 
-    # Count issues by "problem" type
     counts = {}
     for post in filtered:
         prob = post.get("problem", "Unknown")
         counts[prob] = counts.get(prob, 0) + 1
 
     trending = [
-        {"issue": k, "count": v}
-        for k, v in sorted(counts.items(), key=lambda x: -x[1])
+        {"title": k, "count": v} for k, v in sorted(counts.items(), key=lambda x: -x[1])
     ]
 
     return {"region": region, "trending": trending}
