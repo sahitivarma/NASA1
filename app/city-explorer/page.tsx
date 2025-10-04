@@ -1,146 +1,88 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import ExplorerMap, { GlobeOverlay } from "./ExplorerMap"
 
-interface GlobeOverlay {
-  id: string
-  name: string
-  icon: string
-  color: string
-  active: boolean
+// Static data for cities
+const CITY_DATA: Record<string, { lat: number; lng: number }> = {
+  Delhi: { lat: 28.6139, lng: 77.209 },
+  Mumbai: { lat: 19.076, lng: 72.8777 },
+  Bengaluru: { lat: 12.9716, lng: 77.5946 },
 }
 
 export default function CityExplorer() {
   const [mounted, setMounted] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null)
   const [wellbeingScore, setWellbeingScore] = useState(78)
-  const cesiumContainerRef = useRef<HTMLDivElement>(null)
-  const viewerRef = useRef<any>(null)
-
   const [overlays, setOverlays] = useState<GlobeOverlay[]>([
     { id: "vegetation", name: "Vegetation", icon: "🌱", color: "#22c55e", active: false },
-    { id: "heat", name: "Urban Heat Islands", icon: "☀️", color: "#ef4444", active: false },
-    { id: "air", name: "Air Quality", icon: "🌬️", color: "#06b6d4", active: false },
+    { id: "heat", name: "Urban Heat Islands", icon: "☀️", color: "#f97316", active: false },
+    { id: "air", name: "Air Quality", icon: "🌬️", color: "#ef4444", active: false },
     { id: "water", name: "Water Quality", icon: "💧", color: "#3b82f6", active: false },
-    { id: "agriculture", name: "Agriculture Suitability Zones", icon: "⚡", color: "#f59e0b", active: false },
+    { id: "agriculture", name: "Agriculture Suitability Zones", icon: "⚡", color: "#facc15", active: false },
   ])
 
-  useEffect(() => {
-    setMounted(true)
-    initializeCesium()
-  }, [])
+  useEffect(() => setMounted(true), [])
 
-  const initializeCesium = async () => {
-    if (typeof window !== "undefined" && cesiumContainerRef.current) {
-      try {
-        const { Viewer, createWorldTerrain, Ion, Color, Cartesian3 } = await import("cesium")
-
-        Ion.defaultAccessToken =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkMmEyZjIwMS1hMGIzLTRmNWQtODdiYy02NjY5OTI3NWRjMTAiLCJpZCI6MzQzMjkwLCJpYXQiOjE3NTg0NTkwODd9.TpC7YS6AYs0_8KCBT0CMJq8m4ELfWQ9bgUXXrkCX6Lg"
-
-        const viewer = new Viewer(cesiumContainerRef.current, {
-          terrain: createWorldTerrain(),
-          homeButton: false,
-          sceneModePicker: false,
-          baseLayerPicker: false,
-          navigationHelpButton: false,
-          animation: false,
-          timeline: false,
-          fullscreenButton: false,
-          vrButton: false,
-          geocoder: false,
-          infoBox: false,
-          selectionIndicator: false,
-          shadows: true,
-          terrainShadows: 2,
-          requestRenderMode: true,
-          maximumRenderTimeChange: Number.POSITIVE_INFINITY,
-        })
-
-        viewer.scene.backgroundColor = new Color(0, 0, 0, 1)
-        viewer.scene.globe.baseColor = new Color(0.1, 0.1, 0.2, 1)
-        viewerRef.current = viewer
-        viewer.camera.setView({
-          destination: Cartesian3.fromDegrees(0, 0, 20000000),
-        })
-      } catch (error) {
-        console.error("Failed to initialize Cesium:", error)
-      }
-    }
+  const toggleOverlay = (id: string) => {
+    setOverlays((prev) => {
+      const newOverlays = prev.map((o) =>
+        o.id === id ? { ...o, active: !o.active } : o
+      )
+      updateWellbeing(newOverlays)
+      return newOverlays
+    })
+    setTimeout(() => setPanelOpen(false), 300)
   }
 
-  const searchCity = async () => {
-    if (!searchQuery.trim() || !viewerRef.current) return
+  const updateWellbeing = (currentOverlays: GlobeOverlay[]) => {
+    // Simple static logic: +5 per active overlay
+    const activeCount = currentOverlays.filter((o) => o.active).length
+    setWellbeingScore(70 + activeCount * 6)
+  }
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`
-      )
-      const results = await response.json()
-
-      if (results.length > 0) {
-        const { lat, lon } = results[0]
-        const { Cartesian3 } = await import("cesium")
-
-        viewerRef.current.camera.flyTo({
-          destination: Cartesian3.fromDegrees(Number.parseFloat(lon), Number.parseFloat(lat), 1000000),
-          duration: 3.0,
-        })
-
-        setWellbeingScore(Math.floor(Math.random() * 40) + 60)
-      }
-    } catch (error) {
-      console.error("Search failed:", error)
-    }
+  const searchCity = () => {
+    if (!searchQuery.trim()) return
+    const cityName = searchQuery.trim()
+    const coords = CITY_DATA[cityName]
+    if (coords) setCenter(coords)
+    else alert("City not in database: try Delhi, Mumbai, Bengaluru")
+    setPanelOpen(false)
   }
 
   const handleSearchKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") searchCity()
   }
 
-  const toggleOverlay = (id: string) => {
-    setOverlays((prev) =>
-      prev.map((overlay) => (overlay.id === id ? { ...overlay, active: !overlay.active } : overlay))
-    )
-    setTimeout(() => setPanelOpen(false), 300)
-  }
-
   const generateReport = () => {
     const reportContent = `
-      EXONOVA City Health Report - ${searchQuery || "Current Location"}
-      
-      Overall Wellbeing Score: ${wellbeingScore}/100
-      
-      Active Data Layers:
-      ${overlays.filter((o) => o.active).map((o) => `- ${o.name}`).join("\n      ")}
-
-      Recommendations:
-      - Increase green spaces in urban heat island zones
-      - Improve air quality monitoring systems
-      - Enhance water treatment facilities
-      - Develop sustainable agriculture zones
-      
-      Generated by EXONOVA City Health Explorer
-    `
+EXONOVA City Health Report - ${searchQuery || "Current Location"}
+Overall Wellbeing Score: ${wellbeingScore}/100
+Active Data Layers:
+${overlays.filter((o) => o.active).map((o) => `- ${o.name}`).join("\n")}
+Recommendations:
+- Increase green spaces in urban heat island zones
+- Improve air quality monitoring systems
+- Enhance water treatment facilities
+- Develop sustainable agriculture zones
+Generated by EXONOVA City Health Explorer
+`
     const blob = new Blob([reportContent], { type: "text/plain" })
     const url = URL.createObjectURL(blob)
     const newWindow = window.open()
     if (newWindow) {
       newWindow.document.write(`
-        <html>
-          <head><title>EXONOVA Report - ${searchQuery || "Current Location"}</title></head>
-          <body style="font-family: monospace; background: #000; color: #3b53f9; padding: 20px;">
-            <pre>${reportContent}</pre>
-            <br>
-            <a href="${url}" download="exonova-report-${(searchQuery || "location").toLowerCase()}.txt" 
-               style="color: #3b53f9; text-decoration: none; border: 1px solid #3b53f9; padding: 10px; display: inline-block;">
-              Download Report
-            </a>
-          </body>
-        </html>
+<html>
+<head><title>EXONOVA Report</title></head>
+<body style="font-family: monospace; background: linear-gradient(135deg, #000000, #3b53f9); color: white; padding: 20px;">
+<pre>${reportContent}</pre>
+<br>
+<a href="${url}" download="exonova-report.txt" style="color: white; text-decoration: none; border: 1px solid white; padding: 10px; display: inline-block;">Download Report</a>
+</body>
+</html>
       `)
     }
     setPanelOpen(false)
@@ -157,7 +99,7 @@ export default function CityExplorer() {
         <div className="stars3"></div>
       </div>
 
-      {/* Search Bar (fixed) */}
+      {/* Search Bar */}
       <div className="fixed top-20 right-6 z-50">
         <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300 shadow-md">
           <input
@@ -189,114 +131,83 @@ export default function CityExplorer() {
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="relative z-20 h-screen flex">
-        {/* Left Panel */}
-        <div
-          className={`fixed left-0 top-20 bottom-0 w-80 bg-black/80 backdrop-blur-md border-r border-[#3b53f9]/30 transform transition-transform duration-500 z-40 ${
-            panelOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-          style={{
-            background: "linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(59,83,249,0.1) 100%)",
-            boxShadow: "0 0 30px rgba(59,83,249,0.3), inset 0 0 30px rgba(59,83,249,0.1)",
-          }}
-        >
-          <div className="flex flex-col h-full p-6 border border-[#3b53f9]/20 rounded-r-lg">
-            <h2 className="text-xl font-bold text-[#3b53f9] mb-6">City Health Analysis</h2>
+      {/* Left Panel */}
+      <div
+        className={`fixed left-0 top-20 bottom-0 w-80 bg-black/80 backdrop-blur-md border-r border-[#3b53f9]/30 transform transition-transform duration-500 z-40 ${
+          panelOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{
+          background: "linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(59,83,249,0.1) 100%)",
+          boxShadow: "0 0 30px rgba(59,83,249,0.3), inset 0 0 30px rgba(59,83,249,0.1)",
+        }}
+      >
+        <div className="flex flex-col h-full p-6 border border-[#3b53f9]/20 rounded-r-lg">
+          <h2 className="text-xl font-bold text-[#3b53f9] mb-6">City Health Analysis</h2>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <style>{`
+              ::-webkit-scrollbar { width: 6px; }
+              ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+              ::-webkit-scrollbar-thumb { background-color: white; border-radius: 3px; }
+            `}</style>
 
-            {/* Scrollable Content */}
-            <div
-              className="flex-1 overflow-y-auto pr-2"
-              style={{
-                scrollbarWidth: "thin",
-                scrollbarColor: "white rgba(0,0,0,0.2)",
-              }}
-            >
-              <style>
-                {`
-                  ::-webkit-scrollbar { width: 6px; }
-                  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-                  ::-webkit-scrollbar-thumb { background-color: white; border-radius: 3px; }
-                `}
-              </style>
-
-              {/* Overlay Controls */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-4 text-[#3b53f9]">Data Overlays</h3>
-                <div className="space-y-3">
-                  {overlays.map((overlay) => (
-                    <button
-                      key={overlay.id}
-                      onClick={() => toggleOverlay(overlay.id)}
-                      className={`w-full flex items-center space-x-3 p-3 rounded border transition-all ${
-                        overlay.active
-                          ? "border-[#3b53f9] bg-[#3b53f9]/10 shadow-[0_0_10px_#3b53f9] text-white"
-                          : "border-white/20 bg-gray-800 text-white hover:border-[#3b53f9]/50 hover:bg-gray-700"
-                      }`}
-                    >
-                      <span className="text-xl">{overlay.icon}</span>
-                      <span className="text-sm">{overlay.name}</span>
-                      {overlay.active && (
-                        <div
-                          className="ml-auto w-2 h-2 rounded-full animate-pulse"
-                          style={{ backgroundColor: overlay.color }}
-                        ></div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Wellbeing Score */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-4 text-[#3b53f9]">City Wellbeing Score</h3>
-                <div className="relative w-32 h-32 mx-auto">
-                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                    {/* Background Circle */}
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="8" />
-                    {/* Score Circle */}
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="50"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="8"
-                      strokeLinecap="round"
-                      strokeDasharray={`${(wellbeingScore / 100) * 314} 314`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">
-                      {wellbeingScore}
-                    </span>
-                  </div>
-                </div>
+            {/* Overlay Controls */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-4 text-[#3b53f9]">Data Overlays</h3>
+              <div className="space-y-3">
+                {overlays.map((overlay) => (
+                  <button
+                    key={overlay.id}
+                    onClick={() => toggleOverlay(overlay.id)}
+                    className={`w-full flex items-center space-x-3 p-3 rounded border transition-all ${
+                      overlay.active
+                        ? "border-[#3b53f9] bg-[#3b53f9]/10 shadow-[0_0_10px_#3b53f9] text-white"
+                        : "border-white/20 bg-gray-800 text-white hover:border-[#3b53f9]/50 hover:bg-gray-700"
+                    }`}
+                  >
+                    <span className="text-xl">{overlay.icon}</span>
+                    <span className="text-sm">{overlay.name}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Generate Report Button */}
-            <div className="mt-4 flex-shrink-0">
-              <Button
-                onClick={generateReport}
-                className="w-full bg-gradient-to-r from-[#3b53f9] to-[#3b53f9] text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-              >
-                Generate Suggestion Report
-              </Button>
+            {/* Wellbeing Score */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-4 text-[#3b53f9]">City Wellbeing Score</h3>
+              <div className="relative w-32 h-32 mx-auto">
+                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="white" strokeWidth="8" />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={`${(wellbeingScore / 100) * 314} 314`}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-white">{wellbeingScore}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Globe Container */}
-        <div className="flex-1 relative">
-          <div ref={cesiumContainerRef} className="w-full h-full" style={{ background: "black" }} />
+          <div className="mt-4 flex-shrink-0">
+            <Button
+              onClick={generateReport}
+              className="w-full bg-gradient-to-r from-[#3b53f9] to-[#3b53f9] text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Generate Suggestion Report
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Holographic Grid Overlay */}
-      <div className="absolute inset-0 z-10 opacity-10">
-        <div className="grid-overlay"></div>
-      </div>
+      {/* Explorer Map */}
+      <ExplorerMap overlays={overlays} center={center} />
     </div>
   )
 }
