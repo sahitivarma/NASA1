@@ -1,0 +1,111 @@
+[
+    {
+        "id": 1,
+        "user": "Alice",
+        "problem": "Flood",
+        "location": "Hyderabad",
+        "description": "Heavy rain"
+    },
+    {
+        "id": 2,
+        "user": "Bob",
+        "problem": "Flood",
+        "location": "Hyderabad",
+        "description": "Waterlogging issues"
+    },
+    {
+        "id": 3,
+        "user": "Charlie",
+        "problem": "Heat",
+        "location": "Delhi",
+        "description": "Extreme heat"
+    },
+    {
+        "id": 4,
+        "user": "Daisy",
+        "problem": "Flood",
+        "location": "Hyderabad",
+        "description": "Basement flooded"
+    },
+    {
+        "id": "fbdd2141-8204-4629-85ec-8d7323499e1d",
+        "name": "Nikhita",
+        "location": "Hyderabad",
+        "problem": "Flood",
+        "description": "Full flood water is enter into building, and some smaller houses are destroyed completely",
+        "validityScore": 59.0,
+        "image": null
+    },
+    {
+        "id": "c3a38649-9f29-47a7-bcad-9fcab7a1d1c2",
+        "name": "Nikhita",
+        "location": "Hyderabad",
+        "problem": "Flood",
+        "description": "Full flood water is enter into building, and some smaller houses are destroyed completely",
+        "validityScore": 59.0,
+        "image": null
+    },
+    {
+        "id": "8340e2a8-6255-4898-84c4-fe73055b271d",
+        "name": "Nikhita",
+        "location": "Hyderabad",
+        "problem": "Flood",
+        "description": "Full flood water is enter into building, and some smaller houses are destroyed completely",
+        "validityScore": 59.0,
+        "image": null
+    },
+    {
+        "id": "a511ca48-2ebf-4153-90aa-5647beed3455",
+        "name": "Nikhita",
+        "location": "Hyderabad",
+        "problem": "Floods",
+        "description": "Water logging on roads",
+        "validityScore": 59.0,
+        "image": null
+    },
+    {
+        "id": "36154355-ea6b-4e82-aea1-d284b825aadd",
+        "name": "Nikhita",
+        "location": "Hyderabad",
+        "description": "Water destructed my home",
+        "problem": "Flood",
+        "validityScore": 75.0,
+        "image": null
+    },
+    {
+        "id": "9f5ea3dd-7dc1-4421-987f-dd46b167d4be",
+        "name": "Pranitha",
+        "location": "Hyderabad",
+        "description": "Rains water is mixing with polluted air",
+        "problem": "Pollution",
+        "validityScore": 75.0,
+        "image": null
+    },
+    {
+        "id": "dd48efb5-ed28-4bed-b6bc-dd350b97e343",
+        "name": "Pranitha",
+        "location": "Floods",
+        "description": "Need food faclities",
+        "problem": "General",
+        "validityScore": 59.0,
+        "image": null
+    },
+    {
+        "id": "a6f9fd05-2cec-4ecc-9629-41d369dadb4d",
+        "name": "Sahiti",
+        "location": "Hyderabad",
+        "description": "Water logging",
+        "problem": "Flood",
+        "validityScore": 59.0,
+        "image": null
+    },
+    {
+        "id": "69ebe243-fa23-4964-9f1a-22b21cc9f2c6",
+        "name": "Sahiti",
+        "location": "Hyderabad",
+        "description": "Increased pollution due to vehicles",
+        "problem": "Pollution",
+        "validityScore": 59.0,
+        "image": null
+    }
+]

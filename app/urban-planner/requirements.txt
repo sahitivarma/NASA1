@@ -1,0 +1,9 @@
+osmnx==1.9.1
+geopandas
+shapely
+pyproj
+rtree
+h3>=4.3,<5
+folium
+requests
+tqdm
