@@ -1,82 +1,86 @@
 "use client"
+
 import { useEffect, useRef } from "react"
-import type { GlobeOverlay } from "./config"
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
+import "leaflet.heat"
+import { GlobeOverlay } from "./page"
 
 interface ExplorerMapProps {
   overlays: GlobeOverlay[]
-  searchQuery?: string
 }
 
-const overlayColors: Record<string, string> = {
-  heat: "orange",
-  air: "red",
-  water: "blue",
-  vegetation: "green",
-  agriculture: "yellow",
-}
-
-export default function ExplorerMap({ overlays, searchQuery }: ExplorerMapProps) {
-  const mapRef = useRef<HTMLDivElement | null>(null)
-  const leafletMap = useRef<any>(null)
-  const layerGroup = useRef<any>(null)
+export default function ExplorerMap({ overlays }: ExplorerMapProps) {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const leafletMap = useRef<L.Map | null>(null)
 
   useEffect(() => {
     if (!mapRef.current) return
 
-    // Dynamically import Leaflet only on client
-    import("leaflet").then((L) => {
-      leafletMap.current = L.map(mapRef.current).setView([20.5937, 78.9629], 5) // India center
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(leafletMap.current)
+    // Initialize Leaflet map
+    leafletMap.current = L.map(mapRef.current).setView([20.5937, 78.9629], 5) // center India
 
-      layerGroup.current = L.layerGroup().addTo(leafletMap.current)
-    })
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(leafletMap.current)
+
+    return () => {
+      leafletMap.current?.remove()
+    }
   }, [])
 
+  // Add / remove heatmap layers based on overlays
   useEffect(() => {
-    if (!leafletMap.current || !layerGroup.current) return
+    if (!leafletMap.current) return
 
-    layerGroup.current.clearLayers()
-
-    if (!searchQuery) return
-
-    import("./config").then(({ staticCityData }) => {
-      const city = searchQuery.toLowerCase()
-      if (!staticCityData[city]) return
-      const cityData = staticCityData[city]
-
-      overlays.forEach((ov) => {
-        if (!ov.active) return
-        const points = cityData[ov.id as keyof typeof cityData]
-        if (!points) return
-
-        import("leaflet").then((L) => {
-          points.forEach((p) => {
-            L.circle([p.lat, p.lng], {
-              radius: 1000,
-              color: overlayColors[ov.id],
-              fillColor: overlayColors[ov.id],
-              fillOpacity: 0.5,
-            }).addTo(layerGroup.current)
-          })
-        })
-      })
-
-      // Zoom to city bounds
-      const allPoints: [number, number][] = []
-      overlays.forEach((ov) => {
-        const pts = cityData[ov.id as keyof typeof cityData]
-        if (pts) pts.forEach((p) => allPoints.push([p.lat, p.lng]))
-      })
-      if (allPoints.length > 0) {
-        import("leaflet").then((L) => {
-          const bounds = L.latLngBounds(allPoints as [number, number][])
-          leafletMap.current.fitBounds(bounds.pad(0.5))
-        })
+    // Remove all existing layers except the tile layer
+    leafletMap.current.eachLayer((layer) => {
+      if (!(layer instanceof L.TileLayer)) {
+        leafletMap.current?.removeLayer(layer)
       }
     })
-  }, [overlays, searchQuery])
 
-  return <div ref={mapRef} className="w-full h-screen z-0" />
+    overlays.forEach((overlay) => {
+      if (overlay.active) {
+        // Load your data from JSON (replace with fetch or import)
+        // Example static points (lat, lng, intensity)
+        const data: [number, number, number][] = [
+          [28.6139, 77.209, 0.5], // Delhi
+          [19.076, 72.8777, 0.5], // Mumbai
+          [12.9716, 77.5946, 0.5], // Bangalore
+        ]
+
+        // Heatmap color settings based on overlay type
+        let gradient: any = {}
+        switch (overlay.id) {
+          case "heat":
+            gradient = { 0.2: "orange", 0.5: "red", 1: "darkred" }
+            break
+          case "water":
+            gradient = { 0.2: "lightblue", 0.5: "blue", 1: "darkblue" }
+            break
+          case "vegetation":
+            gradient = { 0.2: "lightgreen", 0.5: "green", 1: "darkgreen" }
+            break
+          case "agriculture":
+            gradient = { 0.2: "yellow", 0.5: "gold", 1: "orange" }
+            break
+          case "air":
+            gradient = { 0.2: "pink", 0.5: "red", 1: "darkred" }
+            break
+        }
+
+        const heatLayer = (L as any).heatLayer(data, {
+          radius: 20, // smaller radius
+          blur: 15,
+          maxZoom: 17,
+          gradient,
+        })
+
+        heatLayer.addTo(leafletMap.current!)
+      }
+    })
+  }, [overlays])
+
+  return <div ref={mapRef} className="w-full h-screen z-0"></div>
 }
