@@ -1,0 +1,2 @@
+from risk_model import train_model_from_imerg
+train_model_from_imerg()
